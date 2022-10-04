@@ -3,18 +3,23 @@ FROM debian
 # base
 
 ARG DEBIAN_FRONTEND=noninteractive
-RUN apt-get update -y \
+RUN dpkg --add-architecture i386 \
+	&& apt-get update -y \
 	&& apt-get upgrade -y \
 	&& apt-get install -y --no-install-recommends --no-install-suggests \
 		git \
 		git-lfs \
 		wget \
 		zip \
+		curl \
 		unzip \
 		openjdk-11-jdk-headless \
 		upx \
 		wget \
 		build-essential \
+		llvm-dev \
+		clang \
+		cmake \
 		scons \
 		pkg-config \
 		libx11-dev \
@@ -27,12 +32,20 @@ RUN apt-get update -y \
 		libudev-dev \
 		libxi-dev \
 		libxrandr-dev \
+		libc6-dev-i386 \
 		yasm \
 		python3 \
 		mingw-w64 \
-		mingw-w64-x86-64-dev
+		mingw-w64-x86-64-dev \
+		mingw-w64-i686-dev \
+		gcc-mingw-w64-x86-64 \
+		gcc-mingw-w64-i686 \
+		g++-multilib \
+		gcc-multilib
 
-RUN    update-alternatives --set i686-w64-mingw32-gcc /usr/bin/i686-w64-mingw32-gcc-posix \
+
+
+RUN update-alternatives --set i686-w64-mingw32-gcc /usr/bin/i686-w64-mingw32-gcc-posix \
 	&& update-alternatives --set i686-w64-mingw32-g++ /usr/bin/i686-w64-mingw32-g++-posix \
 	&& update-alternatives --set x86_64-w64-mingw32-gcc /usr/bin/x86_64-w64-mingw32-gcc-posix \
 	&& update-alternatives --set x86_64-w64-mingw32-g++ /usr/bin/x86_64-w64-mingw32-g++-posix
@@ -51,10 +64,10 @@ ARG ANDROID_CMDLINE_URL=https://dl.google.com/android/repository/commandlinetool
 ENV ANDROID_SDK_ROOT=/opt/android
 RUN mkdir -p ${ANDROID_SDK_ROOT}/cmdline-tools/latest \
 	&& cd /tmp \
-    && wget -q ${ANDROID_CMDLINE_URL} -O android-commandline-tools.zip \
+	&& wget -q ${ANDROID_CMDLINE_URL} -O android-commandline-tools.zip \
 	&& unzip -q android-commandline-tools.zip \
-    && mv cmdline-tools/* ${ANDROID_SDK_ROOT}/cmdline-tools/latest \
-    && rm -rf android-commandline-tools.zip cmdline-tools/ && ls -a ${ANDROID_SDK_ROOT}
+	&& mv cmdline-tools/* ${ANDROID_SDK_ROOT}/cmdline-tools/latest \
+	&& rm -rf android-commandline-tools.zip cmdline-tools/ && ls -a ${ANDROID_SDK_ROOT}
 
 ENV PATH ${ANDROID_SDK_ROOT}/cmdline-tools/latest/bin:${PATH}
 
@@ -79,7 +92,7 @@ RUN mkdir -p $GODOT_DIR \
 	&& unzip -q *.zip \
 	&& rm *.zip \
 	&& ln -s Godot_v$GODOT_VERSION-stable_linux_headless.64 godot3 \
-    && ln -s Godot_v$GODOT_VERSION-stable_linux_headless.64 godot
+	&& ln -s Godot_v$GODOT_VERSION-stable_linux_headless.64 godot
 
 COPY replaceicon.gd $GODOT_DIR
 COPY createicon.gd $GODOT_DIR
@@ -113,7 +126,7 @@ RUN cd $GODOT_DIR \
 	&& unzip -q *.zip \
 	&& rm *.zip \
 	&& ln -s Godot_v$GODOT_VERSION-stable_mono_linux_headless_64/Godot_v$GODOT_VERSION-stable_mono_linux_headless.64 godot3_mono \
-    && ln -s Godot_v$GODOT_VERSION-stable_mono_linux_headless_64/Godot_v$GODOT_VERSION-stable_mono_linux_headless.64 godot_mono
+	&& ln -s Godot_v$GODOT_VERSION-stable_mono_linux_headless_64/Godot_v$GODOT_VERSION-stable_mono_linux_headless.64 godot_mono
 
 RUN mkdir -p $GODOT_TEMPLATE_DIR \
 	&& cd $GODOT_TEMPLATE_DIR \
